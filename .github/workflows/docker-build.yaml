@@ -1,0 +1,31 @@
+name: Build and publish aws-rds-dump docker images
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.19'
+
+      - name: Install aws-rds-dump dependencies
+        run: go get .
+
+      - name: Test aws-rds-dump package internal
+        run: go test ./internal
+
+      - name: Build and publish aws-rds-dump docker images
+        run: |
+          TAG="$(echo $GITHUB_REF | grep -oE 'v(\w|\w.)+' | grep -oE '[^v]+')"
+          export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          export DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+          export DOCKER_IMAGE_TAG="$TAG"
+          .github/scripts/docker-build

@@ -1,0 +1,34 @@
+#!/bin/sh
+
+check_env_var() {
+  env_var="$1"
+  eval "value=\$$env_var"
+  if [ -z "$value" ]; then
+    echo "The $env_var env var must be defined."
+    exit 1
+  fi
+}
+
+build() {
+  database="$1"
+  version="$2"
+  docker_image="$DOCKER_USERNAME/aws-rds-dump-$database:$version"
+  dockerfile="Dockerfile.$database"
+  docker build --tag "$docker_image" --file "$dockerfile" .
+  docker push "$docker_image"
+}
+
+check_env_var "DOCKER_USERNAME"
+check_env_var "DOCKER_PASSWORD"
+check_env_var "DOCKER_IMAGE_TAG"
+
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o "aws-rds-dump"
+
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+build "mysql" "$DOCKER_IMAGE_TAG"
+build "mysql" "latest"
+build "postgres" "$DOCKER_IMAGE_TAG"
+build "postgres" "latest"
+docker logout
+
+exit 0

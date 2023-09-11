@@ -1,0 +1,14 @@
+FROM alpine:latest
+
+LABEL maintainer="Adebayo Hountondji <mail@adebayo.fr>"
+
+WORKDIR /usr/local/bin
+
+RUN apk update && apk add --no-cache mysql-client
+
+COPY aws-rds-dump .
+
+ENV DATABASE_DRIVER=mysql
+ENV MYSQLDUMP_EXECUTABLE=/usr/bin/mysqldump
+
+CMD ["aws-rds-dump"]

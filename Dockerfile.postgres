@@ -1,0 +1,14 @@
+FROM alpine:latest
+
+LABEL maintainer="Adebayo Hountondji <mail@adebayo.fr>"
+
+WORKDIR /usr/local/bin
+
+RUN apk update && apk add --no-cache postgresql-client
+
+COPY aws-rds-dump .
+
+ENV DATABASE_DRIVER=postgres
+ENV PG_DUMP_EXECUTABLE=/usr/bin/pg_dump
+
+CMD ["aws-rds-dump"]

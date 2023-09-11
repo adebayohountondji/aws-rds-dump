@@ -1,0 +1,7 @@
+# build
+aws-rds-dump
+
+# workspace
+.env*
+.idea
+.profile
