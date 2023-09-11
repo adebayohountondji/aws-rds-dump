@@ -24,7 +24,7 @@ func TestCreateDumpFilenameFromPatternAndDate(t *testing.T) {
 }
 
 func TestFindAllCommandOptionsFromString(t *testing.T) {
-	result := FindAllCommandOptionsFromString("-B  --only-data    -u me")
+	result := FindAllCommandOptionsFromString("-B --only-data    -u me")
 	expected := []string{"-B", "--only-data", "-u me"}
 
 	lenIsValid := len(result) == len(expected)

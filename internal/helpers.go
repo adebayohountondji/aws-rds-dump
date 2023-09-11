@@ -29,5 +29,5 @@ func CreateDumpFilenameFromPatternAndDate(pattern string, date time.Time) string
 }
 
 func FindAllCommandOptionsFromString(optionsString string) []string {
-	return regexp.MustCompile(`((-{1,2}\S+)((=|\s)(\S+))?)`).FindAllString(optionsString, -1)
+	return regexp.MustCompile(`-{1,2}\S+((=|\s)[^-]\S+)?`).FindAllString(optionsString, -1)
 }

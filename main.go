@@ -26,7 +26,7 @@ func createRdsFromOsEnv() (rds rds, err error) {
 		port, _ := strconv.Atoi(os.Getenv("MYSQL_PORT"))
 		rds = internal.NewMysql(
 			os.Getenv("MYSQL_HOST"),
-			port,
+			uint16(port),
 			os.Getenv("MYSQL_USER"),
 			os.Getenv("MYSQL_PASSWORD"),
 			os.Getenv("MYSQL_DATABASE"),
@@ -37,7 +37,7 @@ func createRdsFromOsEnv() (rds rds, err error) {
 		port, _ := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
 		rds = internal.NewPostgres(
 			os.Getenv("POSTGRES_HOST"),
-			port,
+			uint16(port),
 			os.Getenv("POSTGRES_USER"),
 			os.Getenv("POSTGRES_PASSWORD"),
 			os.Getenv("POSTGRES_DATABASE"),

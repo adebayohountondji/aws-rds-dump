@@ -11,7 +11,7 @@ import (
 
 type Mysql struct {
 	host                string
-	port                int
+	port                uint16
 	user                string
 	password            string
 	database            string
@@ -21,7 +21,7 @@ type Mysql struct {
 
 func NewMysql(
 	host string,
-	port int,
+	port uint16,
 	user string,
 	password string,
 	database string,
@@ -71,7 +71,7 @@ func (m Mysql) Dump(outPutFile *os.File) (err error) {
 
 type Postgres struct {
 	host             string
-	port             int
+	port             uint16
 	user             string
 	password         string
 	database         string
@@ -81,7 +81,7 @@ type Postgres struct {
 
 func NewPostgres(
 	host string,
-	port int,
+	port uint16,
 	user string,
 	password string,
 	database string,
