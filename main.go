@@ -16,55 +16,19 @@ const (
 	defaultDumpFilenamePattern = "{yyyy}{MM}{dd}-{hh}{mm}{ss}"
 )
 
-type rds interface {
-	Dump(outPutFile *os.File) (err error)
-}
-
-func createRdsFromOsEnv() (rds rds, err error) {
-	switch os.Getenv("DATABASE_DRIVER") {
-	case databaseDriverMysql:
-		port, _ := strconv.Atoi(os.Getenv("MYSQL_PORT"))
-		rds = internal.NewMysql(
-			os.Getenv("MYSQL_HOST"),
-			uint16(port),
-			os.Getenv("MYSQL_USER"),
-			os.Getenv("MYSQL_PASSWORD"),
-			os.Getenv("MYSQL_DATABASE"),
-			os.Getenv("MYSQLDUMP_EXECUTABLE"),
-			internal.FindAllCommandOptionsFromString(os.Getenv("MYSQLDUMP_OPTIONS")),
-		)
-	case databaseDriverPostgres:
-		port, _ := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
-		rds = internal.NewPostgres(
-			os.Getenv("POSTGRES_HOST"),
-			uint16(port),
-			os.Getenv("POSTGRES_USER"),
-			os.Getenv("POSTGRES_PASSWORD"),
-			os.Getenv("POSTGRES_DATABASE"),
-			os.Getenv("PG_DUMP_EXECUTABLE"),
-			internal.FindAllCommandOptionsFromString(os.Getenv("PG_DUMP_OPTIONS")),
-		)
-	default:
-		err = errors.New(
-			fmt.Sprintf(
-				"%s is not a valid rds driver. Available values are: %s\n",
-				os.Getenv("DATABASE_DRIVER"),
-				strings.Join([]string{databaseDriverMysql, databaseDriverPostgres}, ", "),
-			),
-		)
+func main() {
+	err := tryToDump()
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
-	return rds, err
+	fmt.Println("aws-rds-dump: main: command executed successfully")
+	os.Exit(0)
 }
 
-func createAwsFromOsEnv() (internal.Aws, error) {
-	return internal.NewAws(
-		internal.AwsConfig{
-			AccessKeyId:     os.Getenv("AWS_ACCESS_KEY_ID"),
-			SecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
-			Region:          os.Getenv("AWS_REGION"),
-		},
-	)
+type rds interface {
+	Dump(outPutFile *os.File) (err error)
 }
 
 func tryToDump() (err error) {
@@ -121,13 +85,49 @@ func tryToDump() (err error) {
 	return err
 }
 
-func main() {
-	err := tryToDump()
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+func createRdsFromOsEnv() (rds rds, err error) {
+	switch os.Getenv("DATABASE_DRIVER") {
+	case databaseDriverMysql:
+		port, _ := strconv.Atoi(os.Getenv("MYSQL_PORT"))
+		rds = internal.NewMysql(
+			os.Getenv("MYSQL_HOST"),
+			uint16(port),
+			os.Getenv("MYSQL_USER"),
+			os.Getenv("MYSQL_PASSWORD"),
+			os.Getenv("MYSQL_DATABASE"),
+			os.Getenv("MYSQLDUMP_EXECUTABLE"),
+			internal.FindAllCommandOptionsFromString(os.Getenv("MYSQLDUMP_OPTIONS")),
+		)
+	case databaseDriverPostgres:
+		port, _ := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
+		rds = internal.NewPostgres(
+			os.Getenv("POSTGRES_HOST"),
+			uint16(port),
+			os.Getenv("POSTGRES_USER"),
+			os.Getenv("POSTGRES_PASSWORD"),
+			os.Getenv("POSTGRES_DATABASE"),
+			os.Getenv("PG_DUMP_EXECUTABLE"),
+			internal.FindAllCommandOptionsFromString(os.Getenv("PG_DUMP_OPTIONS")),
+		)
+	default:
+		err = errors.New(
+			fmt.Sprintf(
+				"%s is not a valid rds driver. Available values are: %s\n",
+				os.Getenv("DATABASE_DRIVER"),
+				strings.Join([]string{databaseDriverMysql, databaseDriverPostgres}, ", "),
+			),
+		)
 	}
 
-	fmt.Println("aws-rds-dump: main: command executed successfully")
-	os.Exit(0)
+	return rds, err
+}
+
+func createAwsFromOsEnv() (internal.Aws, error) {
+	return internal.NewAws(
+		internal.AwsConfig{
+			AccessKeyId:     os.Getenv("AWS_ACCESS_KEY_ID"),
+			SecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			Region:          os.Getenv("AWS_REGION"),
+		},
+	)
 }

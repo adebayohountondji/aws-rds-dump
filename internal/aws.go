@@ -8,31 +8,14 @@ import (
 	"os"
 )
 
-type S3 struct {
-	bucketName string
-	client     *awsClientS3.S3
-}
-
-func (s3 *S3) PutObject(objectKey string, file *os.File) (err error) {
-	_, err = s3.client.PutObject(
-		&awsClientS3.PutObjectInput{
-			Bucket: &s3.bucketName,
-			Key:    &objectKey,
-			Body:   file,
-		},
-	)
-
-	return err
+type Aws struct {
+	clientSession *awsClientSession.Session
 }
 
 type AwsConfig struct {
 	AccessKeyId     string
 	SecretAccessKey string
 	Region          string
-}
-
-type Aws struct {
-	clientSession *awsClientSession.Session
 }
 
 func NewAws(config AwsConfig) (aws Aws, err error) {
@@ -69,9 +52,26 @@ func NewAws(config AwsConfig) (aws Aws, err error) {
 	return aws, err
 }
 
+type S3 struct {
+	bucketName string
+	client     *awsClientS3.S3
+}
+
 func (aws *Aws) NewS3(bucketName string) S3 {
 	return S3{
 		bucketName: bucketName,
 		client:     awsClientS3.New(aws.clientSession),
 	}
+}
+
+func (s3 *S3) PutObject(objectKey string, file *os.File) (err error) {
+	_, err = s3.client.PutObject(
+		&awsClientS3.PutObjectInput{
+			Bucket: &s3.bucketName,
+			Key:    &objectKey,
+			Body:   file,
+		},
+	)
+
+	return err
 }
